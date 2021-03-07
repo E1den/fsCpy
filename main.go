@@ -29,20 +29,20 @@ type props struct {
 	from string
 }
 
-type count32 int32
+type atomicInt int32
 
-func (c *count32) inc() int32 {
+func (c *atomicInt) inc() int32 {
 	return atomic.AddInt32((*int32)(c), 1)
 }
-func (c *count32) dec() int32 {
+func (c *atomicInt) dec() int32 {
 	return atomic.AddInt32((*int32)(c), -1)
 }
 
-func (c *count32) get() int32 {
+func (c *atomicInt) get() int32 {
 	return atomic.LoadInt32((*int32)(c))
 }
 
-var count count32 = 0
+var count atomicInt = 0
 
 const BufferSize = 128_000 //64k
 var MaxJobs = int32(runtime.NumCPU()) * 4
