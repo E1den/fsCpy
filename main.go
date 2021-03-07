@@ -132,23 +132,23 @@ func getReg(path string, key string) string {
 
 func ensureMenu() {
 	path := os.Args[0]
-	setReg(`HKEY_CLASSES_ROOT\Directory\shell\FastCopy\command`, "", fmt.Sprint(path, ` -copy="%1"`))
+	setReg(`HKEY_CLASSES_ROOT\Directory\shell\FastCopy\command`, "", fmt.Sprint(path, ` -copy="\"%1\""`))
 	if currentArgs.verbose {
-		setReg(`HKEY_CLASSES_ROOT\Directory\shell\FastPaste\command`, "", fmt.Sprint(path, ` -paste="%1" -verbose`))
+		setReg(`HKEY_CLASSES_ROOT\Directory\shell\FastPaste\command`, "", fmt.Sprint(path, ` -paste="\"%1\"" -verbose`))
 	} else {
-		setReg(`HKEY_CLASSES_ROOT\Directory\shell\FastPaste\command`, "", fmt.Sprint(path, ` -paste="%1"`))
+		setReg(`HKEY_CLASSES_ROOT\Directory\shell\FastPaste\command`, "", fmt.Sprint(path, ` -paste="\"%1\""`))
 	}
 
-	setReg(`HKEY_CLASSES_ROOT\Directory\Background\shell\FastCopy\command`, "", fmt.Sprint(path, ` -copy="%v"`))
+	setReg(`HKEY_CLASSES_ROOT\Directory\Background\shell\FastCopy\command`, "", fmt.Sprint(path, ` -copy="\"%v\""`))
 	setReg(`HKEY_CLASSES_ROOT\Directory\Background\shell\FastCopy\command`, "NoWorkingDirectory", "")
 	if currentArgs.verbose {
-		setReg(`HKEY_CLASSES_ROOT\Directory\Background\shell\FastPaste\command`, "", fmt.Sprint(path, ` -paste="%v" -verbose`))
+		setReg(`HKEY_CLASSES_ROOT\Directory\Background\shell\FastPaste\command`, "", fmt.Sprint(path, ` -paste="\"%v\"" -verbose`))
 	} else {
-		setReg(`HKEY_CLASSES_ROOT\Directory\Background\shell\FastPaste\command`, "", fmt.Sprint(path, ` -paste="%v"`))
+		setReg(`HKEY_CLASSES_ROOT\Directory\Background\shell\FastPaste\command`, "", fmt.Sprint(path, ` -paste="\"%v\""`))
 	}
 	setReg(`HKEY_CLASSES_ROOT\Directory\Background\shell\FastPaste\command`, "NoWorkingDirectory", "")
 
-	setReg(`HKEY_CLASSES_ROOT\*\shell\FastCopy\command`, "", fmt.Sprint(path, ` -copy="%1"`))
+	setReg(`HKEY_CLASSES_ROOT\*\shell\FastCopy\command`, "", fmt.Sprint(path, ` -copy="\"%1\""`))
 }
 
 func rememberCopy(path string) {
