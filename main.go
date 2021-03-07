@@ -4,7 +4,6 @@ import (
 	"container/list"
 	"flag"
 	"fmt"
-	"golang.org/x/sys/windows/registry"
 	"io"
 	"log"
 	"os"
@@ -13,6 +12,8 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"golang.org/x/sys/windows/registry"
 )
 
 type args struct {
@@ -44,8 +45,8 @@ func (c *atomicInt) get() int32 {
 
 var count atomicInt = 0
 
-const BufferSize = 128_000 //64k
-var MaxJobs = int32(runtime.NumCPU()) * 4
+const bufferSize = 128_000 //64k
+var maxJobs = int32(runtime.NumCPU()) * 4
 
 func parseArgs() args {
 	current := args{copy: false, paste: false, copyPath: "nil", pastePath: "nil", verbose: false}
@@ -191,7 +192,7 @@ func actualCopy(to string, from string) {
 		return
 	}
 	defer target.Close()
-	buffer := make([]byte, BufferSize)
+	buffer := make([]byte, bufferSize)
 
 	for {
 		size, err := source.Read(buffer)
@@ -214,7 +215,7 @@ func actualCopy(to string, from string) {
 	count.dec()
 }
 
-func IsDirectory(path string) bool {
+func isDirectory(path string) bool {
 	var (
 		f   os.FileInfo
 		err error
@@ -229,7 +230,7 @@ func IsDirectory(path string) bool {
 	return f.Mode().IsDir()
 }
 
-func Exists(path string) bool {
+func exists(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
 }
@@ -241,7 +242,7 @@ func stripSurrounding(str string) string {
 }
 
 func fixPath(path string, fromBase string, from string) string {
-	if !IsDirectory(path) {
+	if !isDirectory(path) {
 		return path
 	}
 	if fromBase == from {
@@ -258,11 +259,11 @@ func doCopy(to string, from string) {
 	if currentArgs.verbose {
 		fmt.Println("Copying ", from, " to ", to)
 	}
-	if !Exists(from) || to == from {
+	if !exists(from) || to == from {
 		return
 	}
 
-	if IsDirectory(from) {
+	if isDirectory(from) {
 		files := list.New()
 		err := filepath.Walk(from, func(path string, info os.FileInfo, err error) error {
 			if path == from {
@@ -273,7 +274,7 @@ func doCopy(to string, from string) {
 			}
 			newPath := fixPath(to, from, path)
 			if info.IsDir() {
-				if !Exists(newPath) {
+				if !exists(newPath) {
 					err = os.Mkdir(newPath, info.Mode().Perm())
 					if err != nil {
 						log.Fatal(err)
@@ -292,7 +293,7 @@ func doCopy(to string, from string) {
 
 		for e := files.Front(); e != nil; e = e.Next() {
 			count.inc()
-			for count.get() > MaxJobs {
+			for count.get() > maxJobs {
 				time.Sleep(500 * time.Nanosecond)
 			}
 			go actualCopy(e.Value.(props).to, e.Value.(props).from)
